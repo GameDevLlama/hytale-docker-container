@@ -1,0 +1,29 @@
+# hytale server binaries (must be downloaded manually)
+HytaleServer.jar
+HytaleServer.aot
+
+# assets (licensed, large, user-specific)
+Assets.zip
+
+# runtime data (mounted volume)
+data/
+data/**
+
+# docker / local overrides
+.env
+.env.local
+.env.*.local
+
+# logs
+*.log
+
+# os junk
+.DS_Store
+Thumbs.db
+
+# editor junk
+.vscode/
+.idea/
+
+# git / tooling
+.gitmodules
