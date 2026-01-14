@@ -1,58 +1,41 @@
 # Hytale Dedicated Server (Docker)
 
-Minimal and clean Docker setup for running a **Hytale Dedicated Server** with optional AOT support.
+Minimal Docker image for running a **Hytale Dedicated Server**.
 
-This repository does **not** ship the server binaries.  
-You must download them manually from the official Hytale documentation.
+This image contains only the runtime and server binaries.  
+Game assets must be provided externally.
 
 ---
 
 ## Requirements
 
-- Docker + Docker Compose
-- A valid Hytale account (required for first-time authentication)
-- Server files from Hytale
+- Docker
+- Docker Compose (optional)
+- A valid Hytale account (required on first startup)
 
-Official guide:  
+Official documentation:  
 https://support.hytale.com/hc/en-us/articles/45326769420827-Hytale-Server-Manual
 
 ---
 
-## Repository Structure
+## Image Contents
 
-```
-.
-├─ Dockerfile
-├─ docker-compose.yml
-├─ .dockerignore
-├─ README.md
-├─ HytaleServer.jar      # downloaded manually
-└─ HytaleServer.aot      # optional but recommended
-```
-
----
-
-## Step 1: Download Server Files
-
-Download the following files from the official Hytale server manual:
-
+- Java (Eclipse Temurin 25)
 - `HytaleServer.jar`
 - `HytaleServer.aot`
 
-Place both files **next to the Dockerfile**:
-
-```
-HytaleServer.jar
-HytaleServer.aot
-```
+**Not included:**
+- `Assets.zip`
+- Server data / worlds
 
 ---
 
-## Step 2: Prepare Assets
+## Required Assets
 
-The server requires an `Assets.zip` file.
+You must download `Assets.zip` manually and mount it into the container.
 
 Example host structure:
+
 ```
 /docker/storage/hytale/
 ├─ data/
@@ -60,20 +43,28 @@ Example host structure:
    └─ Assets.zip
 ```
 
-The assets file will be mounted read-only into the container.
+---
+
+## Docker Run Example
+
+```bash
+docker run -d \
+  --name hytale-server \
+  -p 5520:5520/udp \
+  -v /docker/storage/hytale/data:/data \
+  -v /docker/storage/hytale/assets/Assets.zip:/assets/Assets.zip:ro \
+  -e JAVA_OPTS="-Dio.netty.transport.noNative=true" \
+  gamedevllama/hytale-server
+```
 
 ---
 
-## Step 3: Docker Compose Configuration
-
-Example `docker-compose.yml`:
+## Docker Compose Example
 
 ```yaml
 services:
   hytale:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: gamedevllama/hytale-server
     container_name: hytale-server
     restart: unless-stopped
     stdin_open: true
@@ -84,46 +75,27 @@ services:
       - /docker/storage/hytale/data:/data
       - /docker/storage/hytale/assets/Assets.zip:/assets/Assets.zip:ro
     environment:
-      ASSETS_PATH: /assets/Assets.zip
       JAVA_OPTS: "-Dio.netty.transport.noNative=true"
       HYTALE_OPTS: ""
 ```
 
 ---
 
-## Step 4: Start the Server
+## First-Time Authentication
 
-Build and start the container:
-
-```bash
-docker compose up -d --build
-```
-
-Check logs:
-
-```bash
-docker logs -f hytale-server
-```
-
----
-
-## Step 5: First-Time Authentication (IMPORTANT)
-
-On first startup, the server requires authentication with your Hytale account.
-
-Attach to the container:
+On first startup, attach to the container:
 
 ```bash
 docker attach hytale-server
 ```
 
-Run inside the server console:
+Run:
 
-```text
+```
 /auth login device
 ```
 
-Follow the displayed instructions to authenticate the server.
+Follow the instructions to authenticate the server.
 
 Detach safely using:
 
@@ -138,35 +110,29 @@ CTRL + P, CTRL + Q
 | Variable | Description |
 |--------|-------------|
 | `ASSETS_PATH` | Path to `Assets.zip` inside container |
-| `JAVA_OPTS` | Additional JVM flags |
-| `HYTALE_OPTS` | Additional Hytale server flags |
+| `JAVA_OPTS` | Additional JVM options |
+| `HYTALE_OPTS` | Additional Hytale server arguments |
 
 ---
 
 ## Data Persistence
 
-All runtime data is stored in:
-
-```
-/data
-```
-
-This directory **must be mounted** to persist world data and configs.
-
----
-
-## Notes
-
-- The AOT cache (`HytaleServer.aot`) significantly improves startup performance
-- Assets are mounted read-only by design
-- This setup is intended for dedicated servers, not local testing
+All runtime data is stored in `/data`.  
+Mount this directory to persist worlds and configs.
 
 ---
 
 ## Disclaimer
 
 Hytale and all related assets are property of Hypixel Studios.  
-This repository only provides a containerized runtime environment.
+This image provides only a containerized runtime environment.
 
+---
 
-Have fun playing!! 🥳
+## Contact
+
+I occasionally share updates and experiments around game development and server tooling on **X**:
+
+🐦 https://x.com/GamedevLlama
+
+Feel free to reach out if you have questions, ideas, or improvements for this setup.

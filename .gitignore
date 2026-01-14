@@ -1,8 +1,8 @@
-# hytale server binaries (must be downloaded manually)
+# compiled server files
 HytaleServer.jar
 HytaleServer.aot
 
-# assets (licensed, large, user-specific)
+# assets (licensed, large, user-specific), must be downloaded manually
 Assets.zip
 
 # runtime data (mounted volume)

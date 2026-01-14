@@ -1,0 +1,15 @@
+services:
+  hytale:
+    image: gamedevllama/hytale-server
+    container_name: hytale-server
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    ports:
+      - "5520:5520/udp"
+    volumes:
+      - /docker/storage/hytale/data:/data
+      - /docker/storage/hytale/assets/Assets.zip:/assets/Assets.zip:ro
+    environment:
+      JAVA_OPTS: "-Dio.netty.transport.noNative=true"
+      HYTALE_OPTS: ""
